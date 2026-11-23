@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>[hidden]{display:none!important}</style>
+</head><body>
+<title>Гроссмейстер финансового права</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Сцена телешоу: тёмно-синий зал с прожектором, золотые акценты, шестиугольные плашки ответов. Справа (или во всплывающем окне) лестница призов. */
+:root{--bg:#050816;--stage:#0b1233;--plate:#101a45;--plate2:#0a1030;--line:#c9a24a;--gold:#ffd36b;--gold2:#b8862b;--ink:#f3f5ff;--mut:#9aa3cf;
+ --sel:#ff9f1c;--ok:#22c55e;--bad:#ef4444;--blue:#4f7cff;color-scheme:dark;
+ --disp:"Unbounded","Arial Black",system-ui,sans-serif;--body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.4 var(--body);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;overflow-x:hidden;
+ background-image:radial-gradient(70% 45% at 50% -5%,rgba(79,124,255,.35),transparent 70%),radial-gradient(60% 40% at 50% 110%,rgba(201,162,74,.18),transparent 70%);background-attachment:fixed}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.app{min-height:100%;max-width:1040px;margin:0 auto;padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.view[hidden]{display:none!important}
+
+/* общий */
+.crown{width:84px;height:84px;margin:0 auto;border-radius:50%;display:grid;place-items:center;font-size:44px;color:#1a1200;
+ background:radial-gradient(circle at 35% 30%,#fff2c4,var(--gold) 45%,var(--gold2));box-shadow:0 0 0 4px rgba(255,211,107,.18),0 0 50px rgba(255,211,107,.45)}
+h1{font-family:var(--disp);font-weight:800;font-size:clamp(1.6rem,6.5vw,2.6rem);line-height:1.08;margin:0;text-align:center;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;background:linear-gradient(180deg,#fff3c9,var(--gold) 55%,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mut);text-align:center;margin:10px auto 0;max-width:30em}
+.cta{display:block;width:100%;max-width:380px;margin:0 auto;font-family:var(--disp);font-weight:600;font-size:17px;color:#1a1200;padding:17px 22px;border-radius:16px;
+ background:linear-gradient(180deg,#ffe9a8,var(--gold) 50%,var(--gold2));box-shadow:0 10px 30px rgba(255,211,107,.3),inset 0 1px 0 rgba(255,255,255,.6);transition:transform .1s}
+.cta:active{transform:scale(.97)}
+.ghost{display:block;width:100%;max-width:380px;margin:10px auto 0;padding:14px;border-radius:14px;border:1px solid rgba(201,162,74,.45);color:var(--gold);font-weight:600}
+.panel{background:linear-gradient(180deg,rgba(16,26,69,.85),rgba(10,16,48,.85));border:1px solid rgba(201,162,74,.28);border-radius:20px;padding:16px 18px}
+
+/* старт */
+.home{display:grid;gap:18px;max-width:560px;margin:0 auto;padding-top:14px}
+.field{display:grid;gap:6px;font-size:13px;color:var(--mut);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.field input{font:600 17px var(--body);color:var(--ink);background:var(--plate2);border:1px solid rgba(201,162,74,.35);border-radius:12px;padding:13px 14px;text-transform:none;letter-spacing:0;-webkit-user-select:text;user-select:text}
+.rules{display:grid;gap:10px;font-size:14.5px}
+.rules div{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:start}
+.rules b{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--plate);border:1px solid rgba(201,162,74,.45);font-size:16px}
+.rules span{color:var(--mut)}.rules strong{color:var(--ink);font-weight:600}
+.tg{font-size:13.5px;color:var(--mut);text-align:center}
+
+/* игра */
+.game{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:900px){.game{grid-template-columns:1fr 250px;align-items:start}.ladbtn{display:none!important}}
+.hud{display:flex;align-items:center;gap:12px}
+.ring{position:relative;width:62px;height:62px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--disp);font-size:19px;font-variant-numeric:tabular-nums}
+.ring.low b{color:var(--bad)}
+.lvl{flex:1;min-width:0}
+.lvl small{display:block;color:var(--mut);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.lvl strong{font-family:var(--disp);font-size:clamp(1.1rem,4.5vw,1.45rem);color:var(--gold);white-space:nowrap}
+.ladbtn{padding:10px 12px;border-radius:12px;border:1px solid rgba(201,162,74,.4);color:var(--gold);font-size:13px;font-weight:600}
+.qbox{position:relative;margin:4px 0 2px;padding:22px 20px;border-radius:20px;text-align:center;font-size:clamp(1.05rem,4.3vw,1.3rem);font-weight:600;line-height:1.35;min-height:118px;display:grid;place-items:center;
+ background:linear-gradient(180deg,#14205a,#0a1032);border:1.5px solid var(--line);box-shadow:0 0 0 4px rgba(201,162,74,.08),0 20px 50px rgba(0,0,0,.45);text-wrap:balance}
+.qbox .tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--bg);padding:0 10px;font-size:11.5px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;font-weight:700;white-space:nowrap}
+.answers{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:640px){.answers{grid-template-columns:1fr 1fr}}
+.ans{--hx:16px;position:relative;padding:1.5px;clip-path:polygon(var(--hx) 0,calc(100% - var(--hx)) 0,100% 50%,calc(100% - var(--hx)) 100%,var(--hx) 100%,0 50%);
+ background:linear-gradient(90deg,var(--gold2),var(--line),var(--gold2));transition:transform .1s}
+.ans>span{display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 26px;text-align:left;font-size:15.5px;line-height:1.3;
+ clip-path:inherit;background:linear-gradient(180deg,var(--plate),var(--plate2));transition:background .15s}
+.ans i{font-style:normal;font-family:var(--disp);color:var(--gold);font-size:14px;flex:none}
+.ans:not(:disabled):active{transform:scale(.98)}
+@media (hover:hover){.ans:not(:disabled):hover>span{background:linear-gradient(180deg,#1a2a6e,#0e1748)}}
+.ans.sel>span{background:linear-gradient(180deg,#ffb347,#d9730d);color:#1a0d00}.ans.sel i{color:#3a1d00}
+.ans.ok>span{background:linear-gradient(180deg,#4ade80,#15803d);color:#03200d}.ans.ok i{color:#063a17}
+.ans.ok{animation:blink .32s 3}
+.ans.bad>span{background:linear-gradient(180deg,#f87171,#b91c1c);color:#2a0303}.ans.bad i{color:#3a0505}
+.ans.off{visibility:hidden}
+.ans:disabled{cursor:default}
+@keyframes blink{50%{filter:brightness(1.6)}}
+.life{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.life button{display:grid;place-items:center;gap:2px;width:92px;padding:10px 6px;border-radius:16px;background:var(--plate);border:1px solid rgba(201,162,74,.45);font-size:22px;line-height:1}
+.life button small{font-size:11px;color:var(--mut);font-weight:600}
+.life button:disabled{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+.take{display:block;margin:4px auto 0;color:var(--mut);font-size:14px;font-weight:600;padding:8px 14px;border-radius:10px}
+.take:not(:disabled):hover{color:var(--gold)}
+.take:disabled{opacity:.4}
+
+/* лестница */
+.ladder{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-variant-numeric:tabular-nums}
+.ladder li{display:flex;justify-content:space-between;gap:10px;padding:6px 12px;border-radius:10px;font-size:14px;color:var(--mut);font-weight:600}
+.ladder li.safe{color:var(--ink)}
+.ladder li.done{color:#7fa08a}
+.ladder li.now{background:linear-gradient(90deg,var(--gold2),var(--gold));color:#1a1200}
+.ladder li span:first-child{width:24px;opacity:.8}
+.side{display:none}
+@media (min-width:900px){.side{display:block;position:sticky;top:16px}}
+
+/* окно */
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:end center;background:rgba(2,4,14,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+ padding:16px max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media (min-width:640px){.modal{place-items:center}}
+.modal[hidden]{display:none}
+.sheet{width:100%;max-width:440px;max-height:85vh;overflow:auto;display:grid;gap:14px;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:0}}
+.sheet h3{margin:0;font-family:var(--disp);font-size:17px;color:var(--gold)}
+.sheet p{margin:0;color:var(--ink);line-height:1.5}
+.bars{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end;height:150px;padding-top:10px}
+.bars div{display:grid;gap:6px;justify-items:center;align-self:end;font-weight:700;font-size:13px}
+.bars i{display:block;width:100%;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--gold),var(--gold2));min-height:4px;transition:height .6s ease-out}
+.explain{border-left:3px solid var(--gold);padding-left:12px;color:var(--mut);font-size:14.5px}
+
+/* финал */
+.end{display:grid;gap:16px;max-width:560px;margin:0 auto;padding-top:10px;text-align:center}
+.prize{font-family:var(--disp);font-weight:800;font-size:clamp(2.4rem,11vw,3.6rem);line-height:1;background:linear-gradient(180deg,#fff3c9,var(--gold) 55%,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.rank{font-family:var(--disp);font-size:15px;color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stats div{background:var(--plate2);border:1px solid rgba(201,162,74,.25);border-radius:14px;padding:10px 6px}
+.stats b{display:block;font-family:var(--disp);font-size:19px;font-variant-numeric:tabular-nums}
+.stats small{color:var(--mut);font-size:12px}
+.note{font-size:13.5px;color:var(--mut)}
+.top{list-style:none;margin:0;padding:0;display:grid;gap:6px;text-align:left}
+.top li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:8px 12px;border-radius:12px;background:var(--plate2);font-size:14.5px}
+.top li b{font-family:var(--disp);color:var(--gold);font-size:13px}
+.top li span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top li em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:700}
+.top li.me{outline:1.5px solid var(--gold)}
+.empty{color:var(--mut);font-size:14px;text-align:center;padding:8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <!-- старт -->
+  <section class="view home" id="vHome">
+    <div class="crown" aria-hidden="true">♔</div>
+    <h1>Кто станет <em>гроссмейстером</em> финансового права?</h1>
+    <p class="sub">15 вопросов, таймер и три подсказки. Отвечайте быстро и без ошибок — путь до миллиона.</p>
+    <label class="field" for="name">Ваше имя в рейтинге<input id="name" maxlength="24" autocomplete="off" placeholder="Например, Саша"></label>
+    <div class="panel rules">
+      <div><b>⏱</b><span><strong>Время тикает:</strong> 30 секунд на лёгкие вопросы, 40 на средние, 50 на сложные.</span></div>
+      <div><b>🛡</b><span><strong>Несгораемые суммы:</strong> 1 000 и 32 000. Ошибся — уходишь с последней из них.</span></div>
+      <div><b>½</b><span><strong>50 на 50:</strong> убирает два неверных ответа.</span></div>
+      <div><b>📜</b><span><strong>Шпаргалка:</strong> подсказывает, в какой статье закона искать ответ.</span></div>
+      <div><b>👥</b><span><strong>Помощь зала:</strong> показывает, как голосовали зрители.</span></div>
+    </div>
+    <button class="cta" id="play" type="button">Начать игру</button>
+    <button class="ghost" id="showTop" type="button">Таблица рекордов</button>
+    <p class="tg" id="tgNote"></p>
+  </section>
+
+  <!-- игра -->
+  <section class="view game" id="vGame" hidden>
+    <div style="display:grid;gap:14px;min-width:0">
+      <div class="hud">
+        <div class="ring" id="ring"><svg width="62" height="62" viewBox="0 0 62 62" aria-hidden="true"><circle cx="31" cy="31" r="27" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/><circle id="arc" cx="31" cy="31" r="27" fill="none" stroke="#ffd36b" stroke-width="5" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="0"/></svg><b id="sec">30</b></div>
+        <div class="lvl"><small id="qnum">Вопрос 1 из 15</small><strong id="qprize">100 ₽</strong></div>
+        <button class="ladbtn" id="ladBtn" type="button">Лестница</button>
+      </div>
+      <div class="qbox"><span class="tag" id="qtag">Лёгкий вопрос</span><span id="qtext"></span></div>
+      <div class="answers" id="answers"></div>
+      <div class="life">
+        <button type="button" id="l50" aria-label="Подсказка 50 на 50">½<small>50 на 50</small></button>
+        <button type="button" id="lHint" aria-label="Подсказка шпаргалка">📜<small>Шпаргалка</small></button>
+        <button type="button" id="lHall" aria-label="Подсказка помощь зала">👥<small>Помощь зала</small></button>
+      </div>
+      <button class="take" id="take" type="button">Забрать выигрыш и уйти</button>
+    </div>
+    <aside class="side panel"><ol class="ladder" id="ladder"></ol></aside>
+  </section>
+
+  <!-- финал -->
+  <section class="view end" id="vEnd" hidden>
+    <div class="crown" aria-hidden="true">♔</div>
+    <p class="rank" id="eRank"></p>
+    <div class="prize" id="ePrize">0 ₽</div>
+    <p class="sub" id="eWhy" style="margin-top:0"></p>
+    <div class="stats"><div><b id="eOk">0</b><small>верных</small></div><div><b id="eTime">0</b><small>секунд</small></div><div><b id="ePlace">—</b><small>место</small></div></div>
+    <button class="cta" id="send" type="button">Бросить вызов друзьям</button>
+    <p class="note" id="sendNote"></p>
+    <div class="panel" style="display:grid;gap:10px"><h3 style="margin:0;font-family:var(--disp);font-size:15px;color:var(--gold)">Рекорды на этом устройстве</h3><ol class="top" id="eTop"></ol></div>
+    <button class="cta" id="again" type="button">Сыграть ещё</button>
+    <button class="ghost" id="copy" type="button">Скопировать результат</button>
+  </section>
+</div>
+
+<div class="modal" id="modal" hidden><div class="panel sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const tg=window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.initData!==undefined?window.Telegram.WebApp:null;
+const inTg=!!(tg&&tg.initData);
+if(tg){try{tg.ready();tg.expand();tg.setHeaderColor&&tg.setHeaderColor('#050816');tg.setBackgroundColor&&tg.setBackgroundColor('#050816')}catch(e){}}
+
+// ---------- вопросы: t — сложность 1..3, a — верный ответ, w — неверные, h — шпаргалка, e — пояснение ----------
+const BANK=[
+{t:1,q:'Кто вносит в Государственную Думу проект федерального закона о федеральном бюджете?',a:'Правительство РФ',w:['Президент РФ','Министерство финансов РФ','Счётная палата РФ'],h:'Конституция РФ, ст. 114: этот орган разрабатывает бюджет и обеспечивает его исполнение.',e:'Проект бюджета вносит Правительство РФ (ст. 114 Конституции, ст. 192 БК РФ). Минфин его готовит, но вносит не он.'},
+{t:1,q:'С какой по какую дату длится финансовый год в России?',a:'С 1 января по 31 декабря',w:['С 1 апреля по 31 марта','С 1 июля по 30 июня','С 1 октября по 30 сентября'],h:'Ст. 12 БК РФ: финансовый год совпадает с привычным годом.',e:'Финансовый год соответствует календарному году (ст. 12 БК РФ).'},
+{t:1,q:'Кто вправе выпускать наличные деньги в России?',a:'Только Банк России',w:['Министерство финансов РФ','Любой банк с лицензией','Федеральное казначейство'],h:'Конституция РФ, ст. 75, ч. 1.',e:'Денежная эмиссия осуществляется исключительно Центральным банком РФ (ч. 1 ст. 75 Конституции).'},
+{t:1,q:'Сколько уровней у бюджетной системы РФ?',a:'Три',w:['Два','Четыре','Пять'],h:'Ст. 10 БК РФ: федеральный, региональный и ещё один.',e:'Федеральный бюджет, бюджеты субъектов и местные бюджеты (ст. 10 БК РФ).'},
+{t:1,q:'Как называется превышение расходов бюджета над его доходами?',a:'Дефицит бюджета',w:['Профицит бюджета','Секвестр бюджета','Государственный долг'],h:'Ст. 6 БК РФ. Противоположность профицита.',e:'Дефицит — превышение расходов над доходами (ст. 6 БК РФ).'},
+{t:1,q:'Каким кодексом устанавливаются налоги и сборы в России?',a:'Налоговым кодексом РФ',w:['Бюджетным кодексом РФ','Гражданским кодексом РФ','Кодексом об административных правонарушениях'],h:'Название говорит само за себя.',e:'Систему налогов и сборов устанавливает Налоговый кодекс РФ (ст. 1 НК РФ).'},
+{t:1,q:'Какой налог относится к региональным?',a:'Транспортный налог',w:['НДС','Земельный налог','НДФЛ'],h:'Ст. 14 НК РФ. Ставки по нему устанавливает субъект РФ.',e:'Региональные налоги: налог на имущество организаций, на игорный бизнес и транспортный (ст. 14 НК РФ).'},
+{t:1,q:'Какой налог относится к местным?',a:'Земельный налог',w:['Налог на прибыль организаций','Транспортный налог','Водный налог'],h:'Ст. 15 НК РФ.',e:'Местные: земельный налог, налог на имущество физлиц и торговый сбор (ст. 15 НК РФ).'},
+{t:1,q:'Кто принимает решение о размере ключевой ставки?',a:'Совет директоров Банка России',w:['Правительство РФ','Государственная Дума','Министерство финансов РФ'],h:'Закон о Центральном банке РФ: коллегиальный орган ЦБ.',e:'Ключевую ставку устанавливает Совет директоров Банка России (Закон № 86-ФЗ).'},
+{t:1,q:'До какой даты физлицо должно подать декларацию 3-НДФЛ за прошлый год?',a:'До 30 апреля',w:['До 31 марта','До 15 июля','До 1 декабря'],h:'Ст. 229 НК РФ. Весна.',e:'Не позднее 30 апреля следующего года (п. 1 ст. 229 НК РФ). Заплатить налог — до 15 июля.'},
+{t:1,q:'До какой суммы вклады в одном банке застрахованы государством в общем случае?',a:'1,4 млн ₽',w:['700 тыс. ₽','3 млн ₽','10 млн ₽'],h:'Закон о страховании вкладов, ст. 11.',e:'Возмещение — не более 1,4 млн ₽ в одном банке (ст. 11 Закона № 177-ФЗ). В особых жизненных ситуациях — до 10 млн ₽.'},
+
+{t:2,q:'На какой срок принимается закон о федеральном бюджете?',a:'На очередной год и плановый период — всего три года',w:['Только на один год','На пять лет','На шесть лет, по сроку полномочий Президента'],h:'Ст. 169 БК РФ: очередной финансовый год плюс два года.',e:'Федеральный бюджет составляется на очередной финансовый год и плановый период (ст. 169 БК РФ).'},
+{t:2,q:'Как называется межбюджетный трансферт без условий и целевого назначения?',a:'Дотация',w:['Субсидия','Субвенция','Бюджетный кредит'],h:'Ст. 6 БК РФ. Эти деньги можно тратить на любые нужды бюджета.',e:'Дотации предоставляются без установления направлений и условий их использования (ст. 6 БК РФ).'},
+{t:2,q:'Какой орган ведёт кассовое обслуживание исполнения бюджетов?',a:'Федеральное казначейство',w:['Банк России','Федеральная налоговая служба','Счётная палата РФ'],h:'Ст. 215.1 БК РФ.',e:'Кассовое обслуживание исполнения бюджетов осуществляет Федеральное казначейство (ст. 215.1 БК РФ).'},
+{t:2,q:'Чем налог отличается от сбора по Налоговому кодексу?',a:'Налог индивидуально безвозмезден, сбор — условие юридически значимых действий',w:['Налог платят только организации, а сбор — граждане','Налог устанавливают регионы, а сбор — Федерация','По закону различий нет'],h:'Ст. 8 НК РФ.',e:'Налог — индивидуально безвозмездный платёж; сбор — взнос, уплата которого — условие совершения юридически значимых действий в интересах плательщика (ст. 8 НК РФ).'},
+{t:2,q:'Какая основная ставка налога на прибыль организаций с 2025 года?',a:'25%',w:['20%','13%','30%'],h:'Ст. 284 НК РФ. Ставку подняли на пять пунктов.',e:'25%: 8% в федеральный бюджет и 17% в бюджет субъекта (ст. 284 НК РФ).'},
+{t:2,q:'Сколько дней за 12 месяцев нужно провести в России, чтобы стать налоговым резидентом?',a:'Не менее 183 дней',w:['Не менее 90 дней','Не менее 120 дней','Все 365 дней'],h:'Ст. 207 НК РФ. Чуть больше половины года.',e:'Не менее 183 календарных дней в течение 12 следующих подряд месяцев (п. 2 ст. 207 НК РФ).'},
+{t:2,q:'Какой штраф грозит за неуплату налога без умысла?',a:'20% от неуплаченной суммы',w:['10% от неуплаченной суммы','40% от неуплаченной суммы','Фиксированные 5 000 ₽'],h:'Ст. 122 НК РФ. При умысле — вдвое больше.',e:'20% от неуплаченной суммы, при умысле — 40% (ст. 122 НК РФ).'},
+{t:2,q:'Какая ставка налога на профессиональный доход, если самозанятый получил деньги от физлица?',a:'4%',w:['6%','13%','2%'],h:'Закон № 422-ФЗ, ст. 10. С доходов от компаний — больше.',e:'4% с доходов от физлиц и 6% — от ИП и организаций (ст. 10 Закона № 422-ФЗ).'},
+{t:2,q:'Сколько длится камеральная налоговая проверка?',a:'3 месяца со дня подачи декларации',w:['1 месяц','6 месяцев','1 год'],h:'Ст. 88 НК РФ.',e:'Камеральная проверка проводится в течение 3 месяцев со дня представления декларации (п. 2 ст. 88 НК РФ).'},
+{t:2,q:'Какой единый срок уплаты налогов через единый налоговый счёт?',a:'28-е число',w:['15-е число','25-е число','Последний день месяца'],h:'ЕНС действует с 2023 года, срок один для большинства налогов.',e:'С 2023 года налоги по общему правилу уплачиваются не позднее 28-го числа месяца (НК РФ, ст. 58 и главы по отдельным налогам).'},
+{t:2,q:'Частью чего является Фонд национального благосостояния?',a:'Федерального бюджета',w:['Резервов Банка России','Социального фонда России','Бюджетов субъектов РФ'],h:'Ст. 96.10 БК РФ.',e:'ФНБ — часть средств федерального бюджета (ст. 96.10 БК РФ).'},
+{t:2,q:'Какой орган — высший орган внешнего государственного аудита (контроля)?',a:'Счётная палата РФ',w:['Федеральное казначейство','Генеральная прокуратура РФ','Министерство финансов РФ'],h:'Конституция РФ, ст. 101.',e:'Счётная палата — постоянно действующий высший орган внешнего государственного аудита (контроля) (Закон № 41-ФЗ).'},
+
+{t:3,q:'Когда по общему правилу вступают в силу акты законодательства о налогах?',a:'Не ранее месяца после опубликования и не ранее 1-го числа очередного налогового периода',w:['Со дня подписания Президентом','Через 10 дней после опубликования','С 1 января следующего года в любом случае'],h:'Ст. 5 НК РФ: должны выполниться два условия одновременно.',e:'Не ранее чем через месяц со дня официального опубликования и не ранее 1-го числа очередного налогового периода (п. 1 ст. 5 НК РФ).'},
+{t:3,q:'Может ли закон, устанавливающий новый налог, иметь обратную силу?',a:'Нет, ни при каких условиях',w:['Да, если это прямо сказано в законе','Да, но не более чем на 1 год назад','Да, но только для организаций'],h:'Конституция РФ, ст. 57.',e:'Законы, устанавливающие новые налоги или ухудшающие положение налогоплательщиков, обратной силы не имеют (ст. 57 Конституции, п. 2 ст. 5 НК РФ).'},
+{t:3,q:'Какой период можно охватить выездной налоговой проверкой?',a:'Не более 3 лет до года решения о проверке',w:['Не более 5 лет','Не более 1 года','Без ограничений по времени'],h:'Ст. 89 НК РФ.',e:'Проверяются не более трёх календарных лет, предшествующих году решения о проверке (п. 4 ст. 89 НК РФ).'},
+{t:3,q:'Каков максимальный срок выездной налоговой проверки в исключительных случаях?',a:'6 месяцев',w:['4 месяца','1 год','2 месяца'],h:'Ст. 89 НК РФ: 2 месяца, продление до 4, а в исключительных случаях — дольше.',e:'Не более 2 месяцев, с продлением до 4, в исключительных случаях — до 6 месяцев (п. 6 ст. 89 НК РФ).'},
+{t:3,q:'Какой срок давности привлечения к ответственности за налоговое правонарушение?',a:'3 года',w:['1 год','5 лет','10 лет'],h:'Ст. 113 НК РФ.',e:'Нельзя привлечь к ответственности, если прошло 3 года со дня правонарушения или окончания налогового периода (ст. 113 НК РФ).'},
+{t:3,q:'Какая доля ключевой ставки начисляется физлицу как пеня за каждый день просрочки?',a:'1/300',w:['1/150','1/365','1/100'],h:'Ст. 75 НК РФ.',e:'Для физлиц ставка пени — 1/300 ключевой ставки Банка России (п. 4 ст. 75 НК РФ).'},
+{t:3,q:'Что означает принцип общего (совокупного) покрытия расходов бюджета?',a:'Расходы нельзя увязывать с конкретными доходами',w:['Все расходы покрываются только налогами','Дефицит всегда покрывается из ФНБ','Расходы обязаны равняться доходам'],h:'Ст. 35 БК РФ.',e:'Расходы бюджета не могут быть увязаны с определёнными доходами и источниками финансирования дефицита (ст. 35 БК РФ).'},
+{t:3,q:'Что означает принцип единства кассы?',a:'Все доходы и расходы проходят через единый счёт бюджета',w:['Все бюджеты хранятся в Банке России','Наличные выдаёт одна касса на регион','В стране один бюджет на всех'],h:'Ст. 38.2 БК РФ.',e:'Зачисление всех доходов и осуществление всех расходов с единого счёта бюджета (ст. 38.2 БК РФ).'},
+{t:3,q:'Какая максимальная ставка НДФЛ для основных доходов резидента с 2025 года?',a:'22% с доходов свыше 50 млн ₽ в год',w:['15% с доходов свыше 5 млн ₽','30% с доходов свыше 10 млн ₽','20% с доходов свыше 10 млн ₽'],h:'Ст. 224 НК РФ: пять ступеней, первая — 13%.',e:'13% до 2,4 млн ₽, затем 15%, 18%, 20% и 22% — с доходов свыше 50 млн ₽ в год (п. 1 ст. 224 НК РФ).'},
+{t:3,q:'Сколько времени есть на апелляционную жалобу на решение о налоговой ответственности?',a:'Один месяц со дня вручения решения',w:['10 рабочих дней','3 месяца','1 год'],h:'Ст. 139.1 НК РФ.',e:'Апелляционная жалоба подаётся до вступления решения в силу — в течение месяца со дня вручения (п. 2 ст. 139.1 НК РФ).'},
+{t:3,q:'Кто устанавливает местные налоги?',a:'Представительные органы муниципалитетов в рамках НК РФ',w:['Главы местных администраций','Местные налоговые инспекции','Законодательные органы субъектов РФ'],h:'Ст. 12 НК РФ.',e:'Местные налоги устанавливаются НК РФ и актами представительных органов муниципальных образований (п. 4 ст. 12 НК РФ).'},
+{t:3,q:'Какой предельный годовой доход для самозанятых на налоге на профессиональный доход?',a:'2,4 млн ₽',w:['1 млн ₽','5 млн ₽','60 млн ₽'],h:'Закон № 422-ФЗ, ст. 4.',e:'Режим НПД не применяется, если доход за год превысил 2,4 млн ₽ (ст. 4 Закона № 422-ФЗ).'}
+];
+const PRIZES=[100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
+const SAFE=new Set([4,9]);
+const TIME=[30,40,50];
+const RANKS=[[1000000,'Гроссмейстер финансового права'],[250000,'Эксперт'],[32000,'Юрист'],[1000,'Студент'],[0,'Первокурсник']];
+const fmt=n=>n.toLocaleString('ru-RU')+' ₽';
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+
+// ---------- хранилище ----------
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const tgUser=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
+$('name').value=tgUser?(tgUser.username?'@'+tgUser.username:[tgUser.first_name,tgUser.last_name].filter(Boolean).join(' ')):ls.get('gm-name','');
+$('tgNote').textContent='';
+const APP_LINK='';            // ссылка на мини-приложение в Telegram, например https://t.me/имя_бота/игра
+const link=()=>APP_LINK||location.href.split('#')[0].split('?')[0];
+const shareText=()=>`♔ Гроссмейстер финансового права\nМой результат: ${fmt(G.prize)} — ${G.ok} из 15 верно за ${Math.round(G.time)} сек.\nСможешь больше?`;
+
+// ---------- звук и вибрация ----------
+let ac=null;
+function tone(f,d,type,vol,delay){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+ const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+(delay||0);o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+ g.gain.setValueAtTime(vol||.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+const sLock=()=>tone(220,.5,'triangle',.07);
+const sOk=()=>{[523,659,784,1046].forEach((f,i)=>tone(f,.25,'triangle',.06,i*.09))};
+const sBad=()=>{tone(196,.6,'sawtooth',.06);tone(147,.8,'sawtooth',.05,.15)};
+const sTick=()=>tone(880,.06,'square',.03);
+function hap(k){try{if(tg&&tg.HapticFeedback){k==='ok'||k==='bad'?tg.HapticFeedback.notificationOccurred(k==='ok'?'success':'error'):tg.HapticFeedback.impactOccurred(k||'light')}else if(navigator.vibrate)navigator.vibrate(k==='bad'?[60,40,60]:k==='ok'?[20,30,20]:12)}catch(e){}}
+
+// ---------- игра ----------
+let G=null,timer=null;
+function show(v){['vHome','vGame','vEnd'].forEach(id=>$(id).hidden=id!==v);window.scrollTo(0,0)}
+function pick(){const by=t=>shuffle(BANK.filter(q=>q.t===t)).slice(0,5);return[...by(1),...by(2),...by(3)].map(q=>({...q,opts:shuffle([q.a,...q.w])}))}
+function start(){const n=$('name').value.trim();if(!n){$('name').focus();$('name').placeholder='Введите имя';return}ls.set('gm-name',n);
+ G={name:n,qs:pick(),i:0,used:{},ok:0,time:0,locked:false};show('vGame');ladder();ask();hap()}
+function ladder(){const L=$('ladder');L.textContent='';for(let k=PRIZES.length-1;k>=0;k--){const li=document.createElement('li');
+ li.className=(SAFE.has(k)?'safe ':'')+(G&&k<G.i?'done':'')+(G&&k===G.i?' now':'');li.innerHTML=`<span>${k+1}</span><span>${(SAFE.has(k)?'🛡 ':'')+fmt(PRIZES[k])}</span>`;L.append(li)}}
+function ask(){const q=G.qs[G.i];G.locked=false;
+ $('qnum').textContent=`Вопрос ${G.i+1} из 15`;$('qprize').textContent=fmt(PRIZES[G.i]);
+ $('qtag').textContent=['Лёгкий вопрос','Средний вопрос','Сложный вопрос'][q.t-1];$('qtext').textContent=q.q;
+ const box=$('answers');box.textContent='';q.opts.forEach((o,k)=>{const b=document.createElement('button');b.type='button';b.className='ans';b.dataset.v=o;
+  b.innerHTML=`<span><i>${'ABCD'[k]}:</i><em style="font-style:normal"></em></span>`;b.querySelector('em').textContent=o;b.onclick=()=>choose(b);box.append(b)});
+ $('l50').disabled=!!G.used.f;$('lHint').disabled=!!G.used.h;$('lHall').disabled=!!G.used.a;$('take').disabled=G.i===0;
+ ladder();startTimer(TIME[q.t-1])}
+function startTimer(sec){clearInterval(timer);G.limit=sec;G.t0=performance.now();let lastS=sec;
+ const arc=$('arc'),C=169.6;
+ const upd=()=>{const left=Math.max(0,sec-(performance.now()-G.t0)/1000),s=Math.ceil(left);$('sec').textContent=s;arc.style.strokeDashoffset=C*(1-left/sec);
+  arc.style.stroke=left<=5?'#ef4444':left<=10?'#ff9f1c':'#ffd36b';$('ring').classList.toggle('low',left<=5);
+  if(s!==lastS&&s<=5&&s>0)sTick();lastS=s;if(left<=0){clearInterval(timer);G.time+=sec;reveal(null)}};
+ upd();timer=setInterval(upd,100)}
+function stopTimer(){clearInterval(timer);G.time+=Math.min(G.limit,(performance.now()-G.t0)/1000)}
+function choose(b){if(G.locked)return;G.locked=true;stopTimer();lockAll();b.classList.add('sel');sLock();hap('medium');setTimeout(()=>reveal(b),1100)}
+function lockAll(){document.querySelectorAll('.ans').forEach(x=>x.disabled=true);['l50','lHint','lHall','take'].forEach(id=>$(id).disabled=true)}
+function reveal(b){G.locked=true;lockAll();const q=G.qs[G.i],right=[...document.querySelectorAll('.ans')].find(x=>x.dataset.v===q.a);
+ right.classList.remove('off');right.classList.add('ok');
+ if(b&&b===right){G.ok++;sOk();hap('ok');
+  setTimeout(()=>modal(`<h3>Верно! ${fmt(PRIZES[G.i])}</h3><p class="explain">${q.e}</p><button class="cta" id="next" type="button">${G.i===14?'Забрать миллион':'Следующий вопрос'}</button>`,()=>{G.i++;if(G.i>=15)finish('win');else ask()}),900)}
+ else{if(b){b.classList.remove('sel');b.classList.add('bad')}sBad();hap('bad');
+  setTimeout(()=>modal(`<h3>${b?'Неверно':'Время вышло'}</h3><p>Правильный ответ: <b></b></p><p class="explain">${q.e}</p><button class="cta" id="next" type="button">Итоги игры</button>`,()=>finish(b?'wrong':'time'),q.a),1300)}}
+function safeWin(){let w=0;for(const k of SAFE)if(G.i>k)w=PRIZES[k];return w}
+function finish(why){clearInterval(timer);const prize=why==='win'?PRIZES[14]:why==='take'?(G.i?PRIZES[G.i-1]:0):safeWin();
+ G.prize=prize;G.why=why;const secs=Math.round(G.time);
+ $('ePrize').textContent=fmt(prize);$('eRank').textContent=RANKS.find(r=>prize>=r[0])[1];
+ $('eWhy').textContent=why==='win'?'Все 15 вопросов без ошибок. Легенда.':why==='take'?'Вы забрали выигрыш и ушли вовремя.':why==='time'?'Время вышло — вы уходите с несгораемой суммой.':'Ошибка — вы уходите с несгораемой суммой.';
+ $('eOk').textContent=G.ok;$('eTime').textContent=secs;
+ const top=ls.get('gm-top',[]);const rec={n:G.name,p:prize,s:secs,d:Date.now()};top.push(rec);top.sort((a,b)=>b.p-a.p||a.s-b.s);ls.set('gm-top',top.slice(0,10));
+ const place=top.indexOf(rec)+1;$('ePlace').textContent=place<=10?place:'—';drawTop($('eTop'),rec);
+ $('sendNote').textContent='Отправьте результат в чат с друзьями — пусть попробуют обогнать.';
+ show('vEnd');if(prize>=32000)sOk()}
+function drawTop(el,me){const top=ls.get('gm-top',[]);el.textContent='';
+ if(!top.length){el.innerHTML='<li class="empty" style="display:block;background:none">Пока пусто. Сыграйте первым!</li>';return}
+ top.forEach((r,k)=>{const li=document.createElement('li');if(me&&r.d===me.d)li.className='me';li.innerHTML='<b></b><span></span><em></em>';
+  li.children[0].textContent=k+1;li.children[1].textContent=r.n;li.children[2].textContent=fmt(r.p);el.append(li)})}
+
+// ---------- подсказки ----------
+$('l50').onclick=()=>{if(G.locked)return;G.used.f=1;$('l50').disabled=true;const q=G.qs[G.i];
+ shuffle([...document.querySelectorAll('.ans')].filter(b=>b.dataset.v!==q.a)).slice(0,2).forEach(b=>{b.classList.add('off');b.disabled=true});hap()};
+$('lHint').onclick=()=>{if(G.locked)return;G.used.h=1;$('lHint').disabled=true;modal(`<h3>📜 Шпаргалка</h3><p>${G.qs[G.i].h}</p><button class="cta" id="next" type="button">Понятно</button>`);hap()};
+$('lHall').onclick=()=>{if(G.locked)return;G.used.a=1;$('lHall').disabled=true;const q=G.qs[G.i],btns=[...document.querySelectorAll('.ans')],live=btns.filter(b=>!b.classList.contains('off'));
+ const acc=[.75,.6,.45][q.t-1];let v=live.map(b=>b.dataset.v===q.a?acc*100+Math.random()*15:Math.random()*30),sum=v.reduce((a,b)=>a+b,0);v=v.map(x=>Math.round(x/sum*100));
+ const pct={};live.forEach((b,k)=>pct[b.dataset.v]=v[k]);
+ modal(`<h3>👥 Помощь зала</h3><div class="bars">${btns.map((b,k)=>`<div><span>${pct[b.dataset.v]??0}%</span><i data-h="${pct[b.dataset.v]??0}" style="height:0"></i><span style="color:var(--gold)">${'ABCD'[k]}</span></div>`).join('')}</div><button class="cta" id="next" type="button">Спасибо, зал</button>`);
+ requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('.bars i').forEach(i=>i.style.height=Math.max(4,i.dataset.h*1.1)+'px')));hap()};
+$('take').onclick=()=>{if(G.locked||!G.i)return;modal(`<h3>Забрать ${fmt(PRIZES[G.i-1])}?</h3><p>Игра закончится, а выигрыш останется за вами.</p><button class="cta" id="next" type="button">Да, забрать</button><button class="ghost" id="cancel" type="button">Продолжить игру</button>`,()=>{stopTimer();finish('take')})};
+$('ladBtn').onclick=()=>{const c=$('ladder').cloneNode(true);c.removeAttribute('id');modal('<h3>Лестница выигрышей</h3><div id="lc"></div><button class="cta" id="next" type="button">Закрыть</button>');$('lc').append(c)};
+
+// ---------- окно ----------
+function modal(html,onNext,boldText){$('sheet').innerHTML=html;$('modal').hidden=false;
+ if(boldText){const b=$('sheet').querySelector('p b');if(b)b.textContent=boldText}
+ const close=()=>{$('modal').hidden=true};
+ $('next').onclick=()=>{close();onNext&&onNext()};const c=$('cancel');if(c)c.onclick=close;
+ setTimeout(()=>$('next').focus({preventScroll:true}),30)}
+
+// ---------- финал ----------
+$('play').onclick=start;$('again').onclick=()=>{show('vHome')};
+$('showTop').onclick=()=>{modal('<h3>Рекорды на этом устройстве</h3><ol class="top" id="mTop"></ol><button class="cta" id="next" type="button">Закрыть</button>');drawTop($('mTop'))};
+$('send').onclick=()=>{const u='https://t.me/share/url?url='+encodeURIComponent(link())+'&text='+encodeURIComponent(shareText());
+ if(tg&&tg.openTelegramLink){try{tg.openTelegramLink(u);return}catch(e){}}
+ if(navigator.share){navigator.share({title:'Гроссмейстер финансового права',text:shareText(),url:link()}).catch(()=>{});return}
+ location.href=u};
+$('copy').onclick=()=>{const t=shareText()+'\n'+link();
+ const done=()=>{$('copy').textContent='Скопировано!';setTimeout(()=>$('copy').textContent='Скопировать результат',1800)};
+ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(done,()=>{$('sendNote').textContent=t;$('sendNote').style.userSelect='text'})};
+addEventListener('keydown',e=>{if($('vGame').hidden||!$('modal').hidden||G.locked)return;const k='abcd1234'.indexOf(e.key.toLowerCase());if(k<0)return;const b=document.querySelectorAll('.ans')[k%4];if(b&&!b.disabled)b.click()});
+show('vHome');
+})();
+</script>
+
+</body></html>
