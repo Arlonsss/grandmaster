@@ -239,7 +239,7 @@ const ls={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.pa
 const tgUser=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
 $('name').value=tgUser?(tgUser.username?'@'+tgUser.username:[tgUser.first_name,tgUser.last_name].filter(Boolean).join(' ')):ls.get('gm-name','');
 $('tgNote').textContent='';
-const APP_LINK='';            // ссылка на мини-приложение в Telegram, например https://t.me/имя_бота/игра
+const APP_LINK='https://t.me/BOTEKZAMENFPBOT/grandmaster';            // ссылка на мини-приложение в Telegram, например https://t.me/имя_бота/игра
 const link=()=>APP_LINK||location.href.split('#')[0].split('?')[0];
 const shareText=()=>`♔ Гроссмейстер финансового права\nМой результат: ${fmt(G.prize)} — ${G.ok} из 15 верно за ${Math.round(G.time)} сек.\nСможешь больше?`;
 
